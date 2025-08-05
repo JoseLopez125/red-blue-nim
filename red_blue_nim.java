@@ -1,4 +1,5 @@
 import java.util.Objects;
+import java.util.Scanner;
 
 public class red_blue_nim {    
     static int remainingRed, remainingBlue;
@@ -39,11 +40,19 @@ class GameState {
         this.numBlue = numBlue;
     }
     
-    public GameState applyMove(Move move) {
+    public void applyMove(Move move) {
         if (move.color() == Color.RED) {
-            return new GameState(numRed - move.count(), numBlue);
+            numRed = numRed - move.count();
         } else {
-            return new GameState(numRed, numBlue - move.count());
+            numBlue = numBlue - move.count();
+        }
+    }
+
+    public boolean isValidMove(Move move) {
+        if (move.color() == Color.RED) {
+            return move.count() <= numRed;
+        } else {
+            return move.count() <= numBlue;
         }
     }
 
@@ -65,3 +74,48 @@ class GameState {
     }   
 }
 
+class HumanPlayer {
+    public Move getMove(GameState state) {
+        Scanner scanner = new Scanner(System.in);
+        while(true) {
+            System.out.println("Enter your move (e.g., \"red 1\" or \"blue 2\"): ");
+            String input = scanner.nextLine().trim().toUpperCase();
+            String[] tokens = input.split(" ");
+
+            if (tokens.length != 2) {
+                System.out.println("Invalid input: Please enter a color and a count.");
+                continue;
+            }
+            
+            Color color = null;
+            try {
+                color = Color.valueOf(tokens[0]);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input: Color must be RED or BLUE, and count must be 1 or 2.");
+                continue;
+            }
+
+            int count;
+            try {
+                count = Integer.parseInt(tokens[1]);
+                if (count < 1 || count > 2) {
+                    System.out.println("Invalid move: Cannot take that amount from the " + color.name().toLowerCase() + " pile.");
+                    continue;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input: Count must be 1 or 2.");
+                continue;
+            }
+
+            Move move = new Move(color, count);
+            if (state.isValidMove(move)) {
+                scanner.close();
+                return move;
+            } else {
+                System.out.println("Invalid move: Cannot take that amount from the " + color.name().toLowerCase() + " pile.");
+            }
+        }
+    }
+}
+
+class AIPlayer {}
