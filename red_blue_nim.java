@@ -2,10 +2,14 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class red_blue_nim {    
-    static int remainingRed, remainingBlue;
-    
     public static void main(String[] args) {
         System.out.println("Welcome to Red-Blue Nim!");
+        
+        Scanner scanner = new Scanner(System.in);
+        
+
+
+        scanner.close();
     }
 }
 
@@ -17,7 +21,6 @@ enum Color {
 record Move(Color color, int count) {
     public Move {
         Objects.requireNonNull(color, "Color cannot be null");
-        Objects.requireNonNull(count, "Count cannot be null");
         if (count < 1) throw new IllegalArgumentException("Count must be at least 1");
         if (count > 2) throw new IllegalArgumentException("Count must be at most 2");
     }
@@ -75,8 +78,7 @@ class GameState {
 }
 
 class HumanPlayer {
-    public Move getMove(GameState state) {
-        Scanner scanner = new Scanner(System.in);
+    public Move getMove(GameState state, Scanner scanner) {
         while(true) {
             System.out.println("Enter your move (e.g., \"red 1\" or \"blue 2\"): ");
             String input = scanner.nextLine().trim().toUpperCase();
@@ -109,7 +111,6 @@ class HumanPlayer {
 
             Move move = new Move(color, count);
             if (state.isValidMove(move)) {
-                scanner.close();
                 return move;
             } else {
                 System.out.println("Invalid move: Cannot take that amount from the " + color.name().toLowerCase() + " pile.");
