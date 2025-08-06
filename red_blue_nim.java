@@ -10,7 +10,6 @@ public class red_blue_nim {
         int numBlue = -1;
         boolean isMisere = false;
         boolean isHumanFirst = false;
-        boolean isDepthLimited = false; // Using depth limited search algorithm
 
         if (args.length < 2) {
             System.err.println("Error: Missing required arguments for the number of red and blue marbles.");
@@ -33,7 +32,6 @@ public class red_blue_nim {
             switch (args[i]) {
                 case "-m" -> isMisere = true;
                 case "-h" -> isHumanFirst = true;
-                case "-d" -> isDepthLimited = true;
                 default -> System.err.println("Warning: Ignoring '" + args[i] + "' option.");
             }
         }
@@ -49,7 +47,6 @@ public class red_blue_nim {
         System.out.println("Welcome to Red-Blue Nim!");
         System.out.println("Version: " + (isMisere ? "Misere" : "Standard"));
         System.out.println("First Player: " + (isHumanFirst ? "Human" : "Computer"));
-        System.out.println("Search Method: " + (isDepthLimited ? "Depth Limited Search" : "Standard"));
         System.out.println("Initial State: " + gameState + "\n");
         
         // Game Loop
