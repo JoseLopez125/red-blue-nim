@@ -2,12 +2,79 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class red_blue_nim {    
-    public static void main(String[] args) {
-        System.out.println("Welcome to Red-Blue Nim!");
-        
-        Scanner scanner = new Scanner(System.in);
-        
+    public static void main(String[] args) {                
+        // Deal with Arguments
+        int numRed = -1;
+        int numBlue = -1;
+        boolean isMisere = false;
+        boolean isHumanFirst = false;
+        boolean isDepthLimited = false; // Using depth limited search algorithm
 
+        if (args.length < 2) {
+            System.err.println("Error: Missing required arguments for the number of red and blue marbles.");
+            System.err.println("Usage: java RedBlueNim <num-red> <num-blue> ..."); //fix
+            System.exit(1);
+        }
+
+        try {
+            numRed = Integer.parseInt(args[0]);
+            numBlue = Integer.parseInt(args[1]);
+            if (numRed < 0 || numBlue < 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Error: <num-red> and <num-blue> must be positive integers.");
+            System.exit(1)
+;        }
+
+        for (int i = 2; i < args.length; i++) {
+            switch (args[i]) {
+                case "-m" -> isMisere = true;
+                case "-h" -> isHumanFirst = true;
+                case "-d" -> isDepthLimited = true;
+                default -> System.err.println("Warning: Ignoring '" + args[i] + "' option.");
+            }
+        }
+
+        // Game Setup
+        Scanner scanner = new Scanner(System.in);
+        GameState gameState = new GameState(numRed, numBlue);
+        HumanPlayer human = new HumanPlayer();
+        AIPlayer computer = new AIPlayer();
+
+        boolean isHumanTurn = isHumanFirst ? true : false;
+
+        System.out.println("Welcome to Red-Blue Nim!");
+        System.out.println("Version: " + (isMisere ? "Misere" : "Standard"));
+        System.out.println("First Player: " + (isHumanFirst ? "Human" : "Computer"));
+        System.out.println("Search Method: " + (isDepthLimited ? "Depth Limited Search" : "Standard"));
+        System.out.println("Initial State: " + gameState + "\n");
+        
+        // Game Loop
+        while (!gameState.isGameOver()) {
+            System.out.println((isHumanTurn ? "Your turn!" : "Computer's turn!"));
+            Move move = (isHumanTurn ? human.getMove(gameState, scanner) : computer.getMove(gameState));
+            
+            System.out.println((isHumanTurn ? "You" : "Computer") + " chose to " + move + ".");
+            gameState.applyMove(move);
+            System.out.println("\nCurrent State: " + gameState + "\n");
+
+            // Switch turns
+            isHumanTurn = !isHumanTurn;
+        }
+
+        // Game Over
+        System.out.println("Game Over!");
+        int score = 2 * gameState.getNumRed() + 3 * gameState.getNumBlue();
+        System.out.println("Final State: " + gameState + "\n");
+
+        if (isHumanTurn) {
+            System.out.println("A stack is empty on your turn!");
+            System.out.println("Computer wins with a score of " + score + "!");
+        } else {
+            System.out.println("A stack is empty on the computer's turn!");
+            System.out.println("You win with a score of " + score + "!");
+        }
 
         scanner.close();
     }
@@ -119,4 +186,18 @@ class HumanPlayer {
     }
 }
 
-class AIPlayer {}
+class AIPlayer {
+    public Move getMove(GameState state) {
+        // Placeholder for AI logic
+        // For now, just return a random valid move
+        Color color = (state.getNumRed() > 0) ? Color.RED : Color.BLUE;
+        int count = (state.getNumRed() > 0 && state.getNumBlue() > 0) ? 1 : 2;
+
+        Move move = new Move(color, count);
+        if (state.isValidMove(move)) {
+            return move;
+        } else {
+            throw new IllegalStateException("AI cannot find a valid move.");
+        }
+    }
+}
