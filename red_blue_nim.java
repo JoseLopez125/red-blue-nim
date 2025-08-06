@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -41,7 +42,7 @@ public class red_blue_nim {
         Scanner scanner = new Scanner(System.in);
         GameState gameState = new GameState(numRed, numBlue);
         HumanPlayer human = new HumanPlayer();
-        AIPlayer computer = new AIPlayer();
+        AIPlayer computer = new AIPlayer(isMisere);
 
         boolean isHumanTurn = isHumanFirst;
 
@@ -69,12 +70,23 @@ public class red_blue_nim {
         int score = 2 * gameState.getNumRed() + 3 * gameState.getNumBlue();
         System.out.println("Final State: " + gameState + "\n");
 
+        // Determine winner based on game rules
+        // If isMisere is true, the player with an empty stack on their turn wins
+        // If isMisere is false, the player with an empty stack on their turn loses
         if (isHumanTurn) {
             System.out.println("A stack is empty on your turn!");
-            System.out.println("Computer wins with a score of " + score + "!");
+            if (isMisere) {
+                System.out.println("You win with a score of " + score + "!");
+            } else {
+                System.out.println("Computer wins with a score of " + score + "!");
+            }
         } else {
             System.out.println("A stack is empty on the computer's turn!");
-            System.out.println("You win with a score of " + score + "!");
+            if (isMisere) {
+                System.out.println("Computer wins with a score of " + score + "!");
+            } else {
+                System.out.println("You win with a score of " + score + "!");
+            }
         }
 
         scanner.close();
@@ -188,6 +200,12 @@ class HumanPlayer {
 }
 
 class AIPlayer {
+    private boolean isMisere = false; // Default to standard game mode
+
+    public AIPlayer(boolean isMisere) {
+        this.isMisere = isMisere;
+    }
+
     // AI Player using MinMax algorithm with alpha-beta pruning for optimal move selection
     public Move getMove(GameState state) {
         Move bestMove = null;
@@ -198,7 +216,8 @@ class AIPlayer {
             GameState nextState = generateNextState(state, move);
             // Use minValue to find the best move for the AI
             // I used bestValue as alpha value since we only
-            // care about moves that improve the value
+            // care about moves that improve the value. Other moves
+            // will be pruned by the minValue method.
             int moveValue = minValue(nextState, bestValue, Integer.MAX_VALUE); 
             
             if (moveValue > bestValue) {
@@ -212,8 +231,17 @@ class AIPlayer {
     // This method calculates the maximum value the AI can achieve
     private int maxValue(GameState state, int alpha, int beta) {
         if (state.isGameOver()) {
+            int score = 2 * state.getNumRed() + 3 * state.getNumBlue();
+            if (isMisere) {
+                // Returns positive value because this is a winning state for the computer
+                return score;
+            } else {
+                // Returns negative value because this is a losing state for computer
+                return -score;
+            }
+
             // Returns negative value because this is a losing state for computer
-            return -(2 * state.getNumRed() + 3 * state.getNumBlue()); 
+            //return -(2 * state.getNumRed() + 3 * state.getNumBlue()); 
         }
 
         int value = Integer.MIN_VALUE;
@@ -234,8 +262,16 @@ class AIPlayer {
     // to minimize the AI's score / maximize the human's score
     private int minValue(GameState state, int alpha, int beta) {
         if (state.isGameOver()) {
+            int score = 2 * state.getNumRed() + 3 * state.getNumBlue();
+            if (isMisere) {
+                // Returns negative value because this is a losing state for the computer
+                return -score;
+            } else {
+                // Returns positive value because this is a winning state for the computer
+                return score;
+            }
             // Returns positive value becuase this is a winning state for the computer
-            return 2 * state.getNumRed() + 3 * state.getNumBlue(); 
+            //return 2 * state.getNumRed() + 3 * state.getNumBlue(); 
         }
 
         int value = Integer.MAX_VALUE;
@@ -265,6 +301,10 @@ class AIPlayer {
             if (state.isValidMove(move)) {
                 validMoves.add(move);
             }
+        }
+
+        if (isMisere) {
+            Collections.reverse(validMoves);
         }
 
         return validMoves;
