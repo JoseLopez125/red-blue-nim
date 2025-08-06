@@ -19,7 +19,7 @@ This will create a `.class` file in the same directory.
 
 ### Running the Program
 
-After compiling, you can run the program using the `java` command. 
+After compiling, you can run the program using the `java` command.
 
 #### Basic Usage
 
@@ -41,7 +41,7 @@ After compiling, you can run the program using the `java` command.
 
 The program is organized into several classes, each with a specific responsibility, to create a well-defined and modular structure.
 
-`red_blue_nim.java`: This is the main class that contains the main method, which serves as the entry point for the program. It is responsible for:
+`red_blue_nim.java`: This is the main class that contains the main method and serves as the entry point for the program. It is responsible for:
 
 1. Parsing command-line arguments to configure the game (e.g., number of red and blue marbles, game mode).
 2. Initializing the game state and the players (human and AI).
@@ -50,7 +50,7 @@ The program is organized into several classes, each with a specific responsibili
 
 `Color` (enum): A simple enumeration to represent the two colors of marbles: RED and BLUE.
 
-`Move` (record): A data-centric class that represents a single move in the game. It stores the color of the pile and the count of marbles to be removed.
+`Move` (record): A class that represents a single move in the game. It stores the color of the pile and the count of marbles to be removed.
 
 `GameState`: This class encapsulates the state of the game at any given point. It keeps track of the number of red and blue marbles. It also provides methods to apply a move, check if a move is valid, and determine if the game is over.
 
