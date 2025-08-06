@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -42,7 +43,7 @@ public class red_blue_nim {
         HumanPlayer human = new HumanPlayer();
         AIPlayer computer = new AIPlayer();
 
-        boolean isHumanTurn = isHumanFirst ? true : false;
+        boolean isHumanTurn = isHumanFirst;
 
         System.out.println("Welcome to Red-Blue Nim!");
         System.out.println("Version: " + (isMisere ? "Misere" : "Standard"));
@@ -187,17 +188,91 @@ class HumanPlayer {
 }
 
 class AIPlayer {
+    // AI Player using MinMax algorithm with alpha-beta pruning for optimal move selection
     public Move getMove(GameState state) {
-        // Placeholder for AI logic
-        // For now, just return a random valid move
-        Color color = (state.getNumRed() > 0) ? Color.RED : Color.BLUE;
-        int count = (state.getNumRed() > 0 && state.getNumBlue() > 0) ? 1 : 2;
-
-        Move move = new Move(color, count);
-        if (state.isValidMove(move)) {
-            return move;
-        } else {
-            throw new IllegalStateException("AI cannot find a valid move.");
+        Move bestMove = null;
+        int bestValue = Integer.MIN_VALUE;
+        
+        // Iterate through all valid moves for computer
+        for (Move move : getValidMoves(state)) {
+            GameState nextState = generateNextState(state, move);
+            // Use minValue to find the best move for the AI
+            // I used bestValue as alpha value since we only
+            // care about moves that improve the value
+            int moveValue = minValue(nextState, bestValue, Integer.MAX_VALUE); 
+            
+            if (moveValue > bestValue) {
+                bestValue = moveValue;
+                bestMove = move;
+            }
         }
+        return bestMove;        
+    }
+
+    // This method calculates the maximum value the AI can achieve
+    private int maxValue(GameState state, int alpha, int beta) {
+        if (state.isGameOver()) {
+            // Returns negative value because this is a losing state for computer
+            return -(2 * state.getNumRed() + 3 * state.getNumBlue()); 
+        }
+
+        int value = Integer.MIN_VALUE;
+
+        for (Move move : getValidMoves(state)) {
+            GameState nextState = generateNextState(state, move);
+            value = Math.max(value, minValue(nextState, alpha, beta));
+            if (value >= beta) {
+                return value; // Beta pruning
+            }
+            alpha = Math.max(alpha, value);
+        }
+
+        return value;
+    }
+
+    // This method calculates the best move that the human can make 
+    // to minimize the AI's score / maximize the human's score
+    private int minValue(GameState state, int alpha, int beta) {
+        if (state.isGameOver()) {
+            // Returns positive value becuase this is a winning state for the computer
+            return 2 * state.getNumRed() + 3 * state.getNumBlue(); 
+        }
+
+        int value = Integer.MAX_VALUE;
+
+        for (Move move : getValidMoves(state)) {
+            GameState nextState = generateNextState(state, move);
+            value = Math.min(value, maxValue(nextState, alpha, beta));
+            if (value <= alpha) {
+                return value; // Alpha pruning
+            }
+            beta = Math.min(beta, value);
+        }
+
+        return value;
+    }
+
+    private ArrayList<Move> getValidMoves(GameState state) {
+        ArrayList<Move> validMoves = new ArrayList<>();
+
+        ArrayList<Move> potentialMoves = new ArrayList<>();
+        potentialMoves.add(new Move(Color.RED, 2));
+        potentialMoves.add(new Move(Color.BLUE, 2));
+        potentialMoves.add(new Move(Color.RED, 1));
+        potentialMoves.add(new Move(Color.BLUE, 1));
+
+        for (Move move : potentialMoves) {
+            if (state.isValidMove(move)) {
+                validMoves.add(move);
+            }
+        }
+
+        return validMoves;
+    }
+
+    private GameState generateNextState(GameState state, Move move) {
+        GameState newState = new GameState(state.getNumRed(), state.getNumBlue());
+        newState.applyMove(move);
+        return newState;
     }
 }
