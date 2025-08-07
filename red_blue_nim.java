@@ -13,7 +13,7 @@ public class red_blue_nim {
 
         if (args.length < 2) {
             System.err.println("Error: Missing required arguments for the number of red and blue marbles.");
-            System.err.println("Usage: java RedBlueNim <num-red> <num-blue> ..."); //fix
+            System.err.println("Usage: java RedBlueNim <num-red> <num-blue> [options]");
             System.exit(1);
         }
 
